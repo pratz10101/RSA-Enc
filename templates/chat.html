@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat</title>
+</head>
+<body>
+    <h1>Chat - Welcome, {{ username }}</h1>
+    
+    <h2>Compose Message</h2>
+    <form method="POST">
+        <label for="receiver">Receiver:</label>
+        <input type="text" id="receiver" name="receiver" required><br><br>
+        <label for="message">Message:</label>
+        <input type="text" id="message" name="message" required><br><br>
+        <input type="submit" value="Send Message">
+    </form>
+
+    <h2>Received Messages:</h2>
+    <ul>
+        {% for sender, message in messages if sender != username %}
+            <li>{{ sender }}: {{ message }}</li>
+            <li>
+                <form method="POST" action="/decrypt">
+                    <input type="hidden" name="username" value="{{ username }}">
+                    <input type="hidden" name="receiver" value="{{ sender }}">
+                    <input type="hidden" name="encrypted_message" value="{{ message }}">
+                    <label for="private_key_passphrase">Enter Receiver's Private Key Passphrase:</label>
+                    <input type="password" id="private_key_passphrase" name="private_key_passphrase" required>
+                    <input type="submit" value="Decrypt">
+                </form>
+            </li>
+            {% if decrypted_messages is defined %}
+                <li>Decrypted Message: {{ decrypted_messages[sender] }}</li>
+            {% endif %}
+        {% endfor %}
+    </ul>
+    <div class="flash">
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class="alert">
+                    {% for message in messages %}
+                        {{ message }}
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+    </div>    
+</body>
+</html>
